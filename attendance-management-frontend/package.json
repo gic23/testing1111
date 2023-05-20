@@ -1,0 +1,55 @@
+{
+  "name": "attendance-management-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "apexcharts": "^3.36.3",
+    "axios": "^1.2.1",
+    "core-js": "^3.6.5",
+    "dom-to-image": "^2.6.0",
+    "export-from-json": "^1.7.0",
+    "jsbarcode": "^3.11.5",
+    "json-vuer": "^0.1.2",
+    "moment": "^2.29.4",
+    "v-jsoneditor": "^1.4.5",
+    "vue": "^2.6.11",
+    "vue-apexcharts": "^1.6.2",
+    "vue-html2canvas": "^0.0.4",
+    "vue-notification": "^1.3.20",
+    "vue-router": "^3.2.0",
+    "vuetify": "^2.6.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.13",
+    "@vue/cli-plugin-eslint": "~4.5.13",
+    "@vue/cli-plugin-router": "~4.5.13",
+    "@vue/cli-service": "~4.5.13",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "material-design-icons-iconfont": "^5.0.1",
+    "sass": "~1.32.0",
+    "sass-loader": "^10.0.0",
+    "vue-cli-plugin-vuetify": "~2.5.8",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.7.0"
+  },
+  "description": "",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ravit27-N/attendance-management-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ravit27-N/attendance-management-frontend/issues"
+  },
+  "homepage": "https://github.com/Ravit27-N/attendance-management-frontend#readme"
+}

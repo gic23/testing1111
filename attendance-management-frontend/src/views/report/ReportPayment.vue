@@ -1,0 +1,241 @@
+<template>
+  <div>
+    <div class="alert-contain"></div>
+    <div class="select_date mt-10">
+      <div>
+        <v-btn depressed color="primary">From</v-btn>
+      </div>
+      <v-col cols="12" sm="6" md="4" class="mt-8">
+        <v-menu
+          ref="menu"
+          v-model="menu"
+          :close-on-content-click="false"
+          :return-value.sync="start_date"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              v-model="start_date"
+              label="Picker Start Date"
+              prepend-icon="mdi-calendar"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+              solo
+            ></v-text-field>
+          </template>
+          <v-date-picker v-model="start_date" no-title scrollable>
+            <v-spacer></v-spacer>
+            <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+            <v-btn text color="primary" @click="$refs.menu.save(start_date)">OK</v-btn>
+          </v-date-picker>
+        </v-menu>
+      </v-col>
+      <div>
+        <v-btn depressed color="primary">To</v-btn>
+      </div>
+      <v-col cols="12" sm="6" md="4" class="mt-8">
+        <v-menu
+          ref="menu2"
+          v-model="menu2"
+          :close-on-content-click="false"
+          :return-value.sync="end_date"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              v-model="end_date"
+              label="Picker End Date"
+              prepend-icon="mdi-calendar"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+              solo
+            ></v-text-field>
+          </template>
+          <v-date-picker v-model="end_date" no-title scrollable>
+            <v-spacer></v-spacer>
+            <v-btn text color="primary" @click="menu2 = false">Cancel</v-btn>
+            <v-btn text color="primary" @click="$refs.menu2.save(end_date)">OK</v-btn>
+          </v-date-picker>
+        </v-menu>
+      </v-col>
+    </div>
+    <div class="row2">
+      <v-btn depressed class="mr-5" color="primary" @click="getdata">
+        Get Data
+        <v-icon right dark>mdi-share</v-icon>
+      </v-btn>
+      <v-btn depressed color="primary" @click="exportexcel">
+        Export Excel
+        <v-icon right dark>mdi-file-download</v-icon>
+      </v-btn>
+    </div>
+    <div class="row3 mx-10 my-10">
+      <v-card>
+        <v-card-title>
+          Attendances
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-card-title>
+        <v-data-table :headers="headers" :items="payments" :search="search">
+          <template v-slot:item.imageurl="{ item }">
+            <img class="small-image" :src="item.imageurl" style="width: 25px; height:30px" />
+          </template>
+        </v-data-table>
+      </v-card>
+    </div>
+    <div>
+      <v-snackbar
+        v-model="snackbar"
+        top
+        right
+        :color="snackbarColor"
+        timeout="2000"
+        rounded="pill"
+        height="20"
+      >
+        {{snackbarText}}
+        <template v-slot:action="{ attrs }">
+          <v-btn color="red" text v-bind="attrs" @click="snackbar = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
+  </div>
+</template>
+<script>
+import axios from "axios";
+import { excelParser } from "@/plugins/excel-parser";
+import moment from "moment";
+export default {
+  data: () => ({
+    start_date: null,
+    snackbarText: "",
+    snackbarColor: "",
+    snackbar: false,
+    end_date: null,
+    menu: false,
+    menu2: false,
+    search: "",
+    headers: [
+      {
+        text: "Image",
+        align: "center",
+        sortable: false,
+        value: "imageurl"
+      },
+      {
+        text: "Student_id",
+        align: "start",
+        sortable: true,
+        value: "student_id"
+      },
+      { text: "Name", value: "name" },
+      { text: "Gender", value: "gender" },
+      { text: "departmentyear", value: "departmentyear" },
+      { text: "Pay Date", value: "payment_at" }
+    ],
+    payments: [],
+  }),
+  computed: {
+    // dateRangeText() {
+    //   return this.dates.join(" ~ ");
+    // }
+  },
+  mounted() {
+    this.settoday();
+  },
+  methods: {
+    settoday: function() {
+      var currentTime = new Date();
+      const convertTime = moment(currentTime).format("YYYY-MM-DD");
+
+      this.start_date = convertTime;
+      this.end_date = convertTime;
+    },
+    getattendance() {
+      if (this.start_date < this.end_date) {
+        var submit_data = {
+          start_date: this.start_date,
+          end_date: this.end_date
+        };
+        try {
+          axios
+            .post(`${process.env.VUE_APP_SERVICE_URL}/report/payment`, submit_data)
+            .then(response => (this.info = response))
+            .then(() => {
+              if (this.info) {
+                this.payments = this.info.data.data;
+                let i = 0;
+                for (i in this.payments) {
+                  this.payments[i].payment_at = moment(
+                    this.payments[i].payment_at
+                  ).format("DD/MM/YYYY");
+                }
+                this.snackbarText = "List Success";
+                this.snackbarColor = "green";
+                this.snackbar = true;
+              }
+            });
+        } catch (e) {
+          console.log(e);
+        }
+      } else {
+        alert("Start date cannot be greater than end date");
+      }
+    },
+    getdata() {
+      this.getattendance();
+    },
+    
+    exportexcel() {
+      if (this.payments.length != 0) {
+        var totalPaymentReal=this.payments.length*5000;
+        var newdata = {departmentyear:"", payment_at: ""};
+        var newdataone = {departmentyear:"Total Student", payment_at: this.payments.length};
+        var newdatatwo = {departmentyear:"Total Payment(Real)", payment_at: totalPaymentReal };
+        this.payments.push(newdata);
+        this.payments.push(newdataone);
+        this.payments.push(newdatatwo);
+        var filtered = this.payments.map(({student_id,name,gender,phone_number,departmentyear,payment_at}) => ({student_id,name,gender,phone_number,departmentyear,payment_at}));
+        excelParser().exportDataFromJSON(filtered, "Payment_report");
+        this.snackbarText = "Export Excel Success";
+        this.snackbarColor = "green";
+        this.snackbar = true;
+        this.payments=[];
+      } else {
+        this.snackbarText = "Please get data first";
+        this.snackbarColor = "red";
+        this.snackbar = true;
+      }
+    }
+  }
+};
+</script>
+<style scoped>
+.select_date {
+  width: 100%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  vertical-align: middle;
+}
+.row2 {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
